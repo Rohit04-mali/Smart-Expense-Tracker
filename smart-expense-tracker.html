@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light" data-ui="dashboard">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Multi-UI Expense Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar__brand">
+        <div class="brand-logo">₹</div>
+        <div class="brand-text">
+          <span class="brand-title">Smart Expense</span>
+          <span class="brand-subtitle">Multi‑UI Playground</span>
+        </div>
+      </div>
+
+      <nav class="sidebar__nav">
+        <a href="#overview" class="nav-item nav-item--active">
+          <span class="nav-dot"></span>
+          Overview
+        </a>
+        <a href="#transactions" class="nav-item">
+          <span class="nav-dot"></span>
+          Transactions
+        </a>
+        <a href="#analytics" class="nav-item">
+          <span class="nav-dot"></span>
+          Analytics
+        </a>
+      </nav>
+
+      <div class="sidebar__footer">
+        <p class="sidebar-hint">
+          All data is stored locally in your browser. Use the top‑right buttons to
+          switch between UI styles and theme modes.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+      <!-- Top bar -->
+      <header class="topbar">
+        <div>
+          <h1 class="topbar-title">Smart Expense Tracker</h1>
+          <p class="topbar-subtitle">
+            One project · 5 UI styles · Light / Dark / System theme · Pagination.
+          </p>
+        </div>
+
+        <div class="topbar-actions">
+          <button id="uiStyleToggle" class="btn btn--outlined" type="button">
+            UI: Dashboard Pro
+          </button>
+          <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme mode" type="button" title="Theme: System / Light / Dark">
+            <span class="theme-toggle__icon theme-toggle__icon--sun">☀️</span>
+            <span class="theme-toggle__icon theme-toggle__icon--moon">🌙</span>
+          </button>
+          <button id="exportCsvBtn" class="btn btn--outlined" type="button">Export CSV</button>
+          <button id="clearBtn" class="btn btn--danger-outline" type="button">Clear All</button>
+        </div>
+      </header>
+
+      <!-- Overview cards -->
+      <section id="overview" class="panel panel--no-padding">
+        <div class="summary-grid">
+          <div class="summary-card">
+            <div class="summary-label">Total Spent</div>
+            <div class="summary-value" id="totalAmount">₹ 0.00</div>
+            <div class="summary-foot">All visible expenses</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-label">Total Entries</div>
+            <div class="summary-value" id="totalCount">0</div>
+            <div class="summary-foot">Rows in current view</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="summary-label">Average per Expense</div>
+            <div class="summary-value" id="avgAmount">₹ 0.00</div>
+            <div class="summary-foot">Based on filtered data</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Form + Filters -->
+      <section class="panel panel--grid-2">
+        <!-- Add expense form -->
+        <div class="card" aria-labelledby="add-expense-title">
+          <div class="card-header">
+            <div>
+              <h2 id="add-expense-title" class="card-title">Add Expense</h2>
+              <p class="card-subtitle">Capture a new expense with just a few fields.</p>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <form class="form" id="expenseForm" onsubmit="return false;">
+              <div class="form-grid">
+                <div class="form-field">
+                  <label for="date">Date</label>
+                  <input type="date" id="date" />
+                </div>
+
+                <div class="form-field">
+                  <label for="amount">Amount (₹)</label>
+                  <input type="number" id="amount" placeholder="e.g. 1499.00" />
+                </div>
+
+                <div class="form-field">
+                  <label for="category">Category</label>
+                  <select id="category">
+                    <option value="Food">Food</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Grocery">Grocery</option>
+                    <option value="Fitness">Fitness</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div class="form-field">
+                  <label for="description">Description</label>
+                  <input
+                    id="description"
+                    type="text"
+                    placeholder="Short note (optional)"
+                  />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button id="addBtn" class="btn btn--primary" type="button">
+                  <span>➕ Add expense</span>
+                </button>
+                <span class="form-hint">
+                  Tip: Use <strong>Edit</strong> in the table to update an entry.
+                </span>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Filters + Chart -->
+        <div class="card" id="analytics">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Filters & Category Insights</h2>
+              <p class="card-subtitle">Narrow down your data and see where money goes.</p>
+            </div>
+          </div>
+
+          <div class="card-body card-body--stacked">
+            <!-- Filters -->
+            <div class="filters">
+              <div class="filter-field">
+                <label for="sortAmount">Sort by amount</label>
+                <select id="sortAmount">
+                  <option value="none">None</option>
+                  <option value="low-high">Low → High</option>
+                  <option value="high-low">High → Low</option>
+                </select>
+              </div>
+
+              <div class="filter-field">
+                <label for="duration">Duration</label>
+                <select id="duration">
+                  <option value="all">All time</option>
+                  <option value="30">Last 30 days</option>
+                  <option value="90">Last 3 months</option>
+                  <option value="180">Last 6 months</option>
+                </select>
+              </div>
+
+              <div class="filter-field">
+                <label for="filterCategory">Category</label>
+                <select id="filterCategory">
+                  <option value="all">All categories</option>
+                  <option value="Food">Food</option>
+                  <option value="Travel">Travel</option>
+                  <option value="Grocery">Grocery</option>
+                  <option value="Fitness">Fitness</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Chart -->
+            <div class="chart-container">
+              <canvas id="chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Table -->
+      <section id="transactions" class="panel">
+        <div class="card card--full">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">Transactions</h2>
+              <p class="card-subtitle">
+                Only 5 expenses are shown per page. Use Next / Previous to see more.
+              </p>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="table-wrapper">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Amount (₹)</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th style="width: 120px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="expenseTable"></tbody>
+              </table>
+              <div class="table-empty" id="emptyState" hidden>
+                <p>No expenses yet. Start by adding your first one above.</p>
+              </div>
+            </div>
+
+            <div class="table-pagination">
+              <button id="prevPageBtn" class="btn btn--outlined btn--sm" type="button">Previous</button>
+              <span class="table-pagination__info" id="paginationInfo">Page 1 of 1</span>
+              <button id="nextPageBtn" class="btn btn--outlined btn--sm" type="button">Next</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>
+          Built for practice projects & portfolios · HTML · CSS · JavaScript · Multiple UI themes
+        </p>
+      </footer>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
