@@ -51,4 +51,3 @@ A modern **Smart Expense Tracker** web application with **5 UI styles**, **theme
 
 ---
 
-## 📂 Project Structure
